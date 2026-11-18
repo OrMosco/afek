@@ -25,7 +25,7 @@
   camera-orbit="200deg 55deg 600m" camera-target="0m 0m -60m" min-camera-orbit="auto 0deg 5m" max-camera-orbit="auto 89deg 900m"
   field-of-view="40deg" shadow-intensity="0.6" exposure="1.05" interaction-prompt="none"></model-viewer>
 
-<div class="panel" id="panel">
+<div class="panel" id="panel" style="display:none">
   <h1>הרחבת אפק – מודל נפחים ראשוני</h1>
   <div class="muted">התוכנית משובצת בתצ"א לפי הכבישים (צפון למעלה, דיוק ±3 מ'). קנה מידה אמיתי; ראשית הצירים במרכז הכיכר הקיימת. קומה 3.2 מ', גג משופע 25° עם כרכוב 40 ס"מ. הבתים החומים דו-קומתיים: קומה ב' בשליש משטח הקומה, במיקום הריבוע הלבן שבתוכנית. המבנים זוהו אוטומטית מהתוכנית, ±5%.</div>
   <div class="legend">
@@ -39,25 +39,24 @@
     <span><i style="background:#b97364"></i>קיים – בתי הקיבוץ, דו/תלת-משפחתיים (65 יח')</span>
   </div>
 </div>
-<button id="toggle">ℹ️</button>
 
 <div class="btns">
   <button data-v="200deg 55deg 520m" class="on">מבט כללי</button>
   <button data-v="0deg 0deg 620m">תכנית</button>
   <button data-v="160deg 80deg 70m">גובה עיניים</button>
-  <button id="hide">הסתר מידע</button>
+  <button id="hide">הראה מידע</button>
 </div>
 
 <script>
   const mv=document.getElementById('mv');
-    const panel=document.getElementById('panel'),tg=document.getElementById('toggle');
+    const panel=document.getElementById('panel');
   document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{
     document.querySelectorAll('[data-v]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
     mv.cameraOrbit=b.dataset.v;
     mv.cameraTarget=b.dataset.v.endsWith('70m')?'-40m 1.6m -120m':'0m 0m -60m';
   });
-  document.getElementById('hide').onclick=()=>{panel.style.display='none';tg.style.display='block'};
-  tg.onclick=()=>{panel.style.display='block';tg.style.display='none'};
+  const hb=document.getElementById('hide');
+  hb.onclick=()=>{const open=panel.style.display==='none';panel.style.display=open?'block':'none';hb.textContent=open?'הסתר מידע':'הראה מידע';hb.classList.toggle('on',open)};
 </script>
 </body>
 </html>

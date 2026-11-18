@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<model-viewer id="mv" src="assets/afek_massing.glb?v=d1b6685" camera-controls touch-action="pan-y"
+<model-viewer id="mv" src="assets/afek_massing.glb?v=nolli1" camera-controls touch-action="pan-y"
   camera-orbit="200deg 55deg 600m" camera-target="0m 0m -60m" min-camera-orbit="auto 0deg 5m" max-camera-orbit="auto 89deg 900m"
   field-of-view="40deg" shadow-intensity="0.6" exposure="1.05" interaction-prompt="none"></model-viewer>
 
@@ -44,6 +44,7 @@
   <button data-v="200deg 55deg 520m" class="on">מבט כללי</button>
   <button data-v="0deg 0deg 620m">תכנית</button>
   <button data-v="160deg 80deg 70m">גובה עיניים</button>
+  <button id="nolli">מפת נולי</button>
   <button id="hide">הראה מידע</button>
 </div>
 
@@ -57,6 +58,31 @@
   });
   const hb=document.getElementById('hide');
   hb.onclick=()=>{const open=panel.style.display==='none';panel.style.display=open?'block':'none';hb.textContent=open?'הסתר מידע':'הראה מידע';hb.classList.toggle('on',open)};
+
+  // ---- Nolli map: buildings black, everything else white, plan view ----
+  const nb=document.getElementById('nolli'); let nolli=false, saved=null, cam=null;
+  function setNolli(on){
+    const mats=mv.model?mv.model.materials:[];
+    if(on){
+      saved=mats.map(m=>({m,bc:m.pbrMetallicRoughness.baseColorFactor.slice(),em:m.emissiveFactor.slice(),
+        tex:m.pbrMetallicRoughness.baseColorTexture?m.pbrMetallicRoughness.baseColorTexture.texture:null}));
+      mats.forEach(m=>{
+        if((m.name||'').startsWith('bld')){m.pbrMetallicRoughness.setBaseColorFactor([0,0,0,1]);m.setEmissiveFactor([0,0,0]);}
+        else{ if(m.pbrMetallicRoughness.baseColorTexture&&m.pbrMetallicRoughness.baseColorTexture.texture) m.pbrMetallicRoughness.baseColorTexture.setTexture(null);
+              m.pbrMetallicRoughness.setBaseColorFactor([1,1,1,1]);m.setEmissiveFactor([1,1,1]);}
+      });
+      cam={o:mv.cameraOrbit,t:mv.cameraTarget,f:mv.fieldOfView,sh:mv.shadowIntensity,bg:mv.style.background};
+      mv.shadowIntensity=0; mv.style.background='#ffffff';
+      mv.fieldOfView='38deg'; mv.cameraTarget='0m 0m -60m'; mv.cameraOrbit='0deg 0deg 880m';
+      nb.textContent='חזרה לצבע'; nb.classList.add('on');
+    }else{
+      (saved||[]).forEach(s=>{s.m.pbrMetallicRoughness.setBaseColorFactor(s.bc);s.m.setEmissiveFactor(s.em);
+        if(s.tex) s.m.pbrMetallicRoughness.baseColorTexture.setTexture(s.tex);});
+      if(cam){mv.shadowIntensity=cam.sh;mv.style.background=cam.bg;mv.fieldOfView=cam.f;mv.cameraTarget=cam.t;mv.cameraOrbit=cam.o;}
+      nb.textContent='מפת נולי'; nb.classList.remove('on');
+    }
+  }
+  nb.onclick=()=>{nolli=!nolli;setNolli(nolli)};
 </script>
 </body>
 </html>
